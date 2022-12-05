@@ -32,7 +32,7 @@ const HomePage: React.FC = function () {
 
   return (
     <Flex h="100vh" justifyContent="center" py="128px">
-      <Box w="380px" maxW="100%">
+      <Box w={{ base: '100%', lg: '380px' }} maxW="100%">
         <Box textAlign="center">
           <Image mx="auto" src={MozioLogo} />
           <Text fontSize="14px" mb="24px">
