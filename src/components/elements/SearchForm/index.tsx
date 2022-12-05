@@ -167,7 +167,7 @@ const SearchForm: React.FC<Props> = function ({ submit, defaultValues }) {
           >
             <FormsIcon />
           </Flex>
-          <Grid templateColumns={{ base: '1fr', lg: '1fr 1fr' }} gap="13px">
+          <Grid templateColumns="1fr 1fr" gap="13px">
             <FormControl isInvalid={isDateInvalid}>
               <FormLabel fontSize="14px">Trip Date</FormLabel>
               <Input

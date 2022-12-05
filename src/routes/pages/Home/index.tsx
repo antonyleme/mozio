@@ -10,15 +10,11 @@ import { ISelectCityOption } from 'common/types';
 const HomePage: React.FC = function () {
   const navigate = useNavigate();
 
-  const submit = (destinies: ISelectCityOption[]): void => {
-    navigate(`/result?cities=${destinies.map((d) => d.value).join(',')}`);
+  const submit = (destinies: ISelectCityOption[], date: string, passengers: string): void => {
+    navigate(`/result?cities=${destinies.map((d) => d.value).join(',')}&date=${date}&passengers=${passengers}`);
   };
 
   const [searchParams] = useSearchParams();
-
-  const [defaultCities, setDefaultCities] = useState<string[]>();
-  const [defaultDate, setDefaultDate] = useState('');
-  const [defaultPassengers, setDefaultPassengers] = useState('');
 
   const [defaultValues, setDefaulValues] = useState({
     destinies: [] as string[],
