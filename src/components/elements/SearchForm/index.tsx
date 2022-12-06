@@ -7,6 +7,7 @@ import { FormsIcon } from 'components/icons';
 import SelectCityInput from 'components/shared/SelectCityInput';
 import { AnimatePresence, motion } from 'framer-motion';
 import React, { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useImmer } from 'use-immer';
 import { v4 as uuid } from 'uuid';
 import AddLocalizationButton from './AddLocalizationButton';
@@ -14,21 +15,59 @@ import InputsIcons from './InputsIcons';
 
 interface Props {
   submit: (values: ISelectCityOption[], date: string, passengers: string) => void,
-  defaultValues?: {
-    destinies?: string[],
-    date?: string,
-    passengers?: string
-  }
 }
 
-const SearchForm: React.FC<Props> = function ({ submit, defaultValues }) {
+const SearchForm: React.FC<Props> = function ({ submit }) {
   const [destinies, updateDestinies] = useImmer<ISelectCityOption[]>([]);
+
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const [date, setDate] = useState('');
   const [isDateInvalid, setIsDateInvalid] = useState(false);
 
   const [passengers, setPassengers] = useState('1');
   const [isPassengersInvalid, setIsPassengersInvalid] = useState(false);
+
+  React.useEffect(() => {
+    const defaultCities = searchParams.get('cities')?.split(',');
+    const defaultDate = searchParams.get('date');
+    const defaultPassengers = searchParams.get('passengers');
+
+    updateDestinies(() => (defaultCities || [
+      {
+        id: uuid(),
+        value: '',
+        isInvalid: false,
+      },
+      {
+        id: uuid(),
+        value: '',
+        isInvalid: false,
+      },
+    ]));
+    if (defaultDate) setDate(defaultDate);
+    if (defaultPassengers) setPassengers(defaultPassengers);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    const finalObject: {
+      date?: string,
+      passengers?: string
+    } = {};
+
+    if (date) {
+      finalObject.date = date;
+    }
+
+    if (passengers) {
+      finalObject.passengers = passengers;
+    }
+
+    if (date || passengers) {
+      setSearchParams(finalObject);
+    }
+  }, [date, passengers, setSearchParams]);
 
   useEffect(() => {
     if (date && isDateInvalid) {
@@ -54,40 +93,40 @@ const SearchForm: React.FC<Props> = function ({ submit, defaultValues }) {
     return d.toISOString().substring(0, 10);
   };
 
-  useEffect(() => {
-    let newDestinies: ISelectCityOption[] = [
-      {
-        id: uuid(),
-        value: '',
-        isInvalid: false,
-      },
-      {
-        id: uuid(),
-        value: '',
-        isInvalid: false,
-      },
-    ];
+  // useEffect(() => {
+  //   let newDestinies: ISelectCityOption[] = [
+  //     {
+  //       id: uuid(),
+  //       value: '',
+  //       isInvalid: false,
+  //     },
+  //     {
+  //       id: uuid(),
+  //       value: '',
+  //       isInvalid: false,
+  //     },
+  //   ];
 
-    if (defaultValues?.destinies?.length) {
-      newDestinies = defaultValues?.destinies.map((val) => (
-        {
-          id: uuid(),
-          value: val,
-          isInvalid: false,
-        }
-      ));
-    }
+  //   if (defaultValues?.destinies?.length) {
+  //     newDestinies = defaultValues?.destinies.map((val) => (
+  //       {
+  //         id: uuid(),
+  //         value: val,
+  //         isInvalid: false,
+  //       }
+  //     ));
+  //   }
 
-    updateDestinies(() => newDestinies);
+  //   updateDestinies(() => newDestinies);
 
-    if (defaultValues?.date) {
-      setDate(defaultValues?.date);
-    }
+  //   if (defaultValues?.date) {
+  //     setDate(defaultValues?.date);
+  //   }
 
-    if (defaultValues?.passengers) {
-      setPassengers(defaultValues?.passengers);
-    }
-  }, [defaultValues, updateDestinies]);
+  //   if (defaultValues?.passengers) {
+  //     setPassengers(defaultValues?.passengers);
+  //   }
+  // }, [defaultValues, updateDestinies]);
 
   const onChange = (value: string, index: number): void => {
     if (destinies[index].value === value) return;

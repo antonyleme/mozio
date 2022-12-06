@@ -1,9 +1,9 @@
 import {
   Box, Flex,
 } from '@chakra-ui/react';
-import React, { useState } from 'react';
+import React from 'react';
 import SearchForm from 'components/elements/SearchForm';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { ISelectCityOption } from 'common/types';
 import Header from 'components/elements/Header';
 
@@ -13,22 +13,6 @@ const HomePage: React.FC = function () {
   const submit = (destinies: ISelectCityOption[], date: string, passengers: string): void => {
     navigate(`/result?cities=${destinies.map((d) => d.value).join(',')}&date=${date}&passengers=${passengers}`);
   };
-
-  const [searchParams] = useSearchParams();
-
-  const [defaultValues, setDefaulValues] = useState({
-    destinies: [] as string[],
-    date: '',
-    passengers: '',
-  });
-
-  React.useEffect(() => {
-    setDefaulValues({
-      destinies: searchParams.get('cities')?.split(',') || [],
-      date: searchParams.get('date') || '',
-      passengers: searchParams.get('passengers') || '',
-    });
-  }, [searchParams]);
 
   return (
     <Flex h="100vh" justifyContent="center" py="128px">
@@ -43,7 +27,6 @@ const HomePage: React.FC = function () {
 
         <SearchForm
           submit={submit}
-          defaultValues={defaultValues}
         />
       </Box>
     </Flex>

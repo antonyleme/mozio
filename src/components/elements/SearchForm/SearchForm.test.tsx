@@ -3,6 +3,7 @@ import {
 } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { getIfCityIsValid } from 'api';
+import { MemoryRouter } from 'react-router-dom';
 import SearchForm from '.';
 
 jest.mock('api', () => ({ getIfCityIsValid: jest.fn() }));
@@ -10,7 +11,9 @@ jest.mock('api', () => ({ getIfCityIsValid: jest.fn() }));
 describe('<SearchForm/>', () => {
   test('Renders without error', () => {
     const { getByTestId } = render(
-      <SearchForm submit={() => undefined} />,
+      <MemoryRouter>
+        <SearchForm submit={() => undefined} />
+      </MemoryRouter>,
     );
 
     const form = getByTestId('search-form');
@@ -19,7 +22,9 @@ describe('<SearchForm/>', () => {
 
   test('Renders 2 icons by default', () => {
     const { getAllByTestId } = render(
-      <SearchForm submit={() => undefined} />,
+      <MemoryRouter>
+        <SearchForm submit={() => undefined} />
+      </MemoryRouter>,
     );
 
     const icons = getAllByTestId('input-icon');
@@ -29,7 +34,9 @@ describe('<SearchForm/>', () => {
   describe('Select city inputs', () => {
     test('Starts with 2 inputs by default', () => {
       const { getAllByTestId } = render(
-        <SearchForm submit={() => undefined} />,
+        <MemoryRouter>
+          <SearchForm submit={() => undefined} />
+        </MemoryRouter>,
       );
 
       const inputs = getAllByTestId('select-city-input');
@@ -38,7 +45,9 @@ describe('<SearchForm/>', () => {
 
     test('Doesn`t show remove button when there is less than 3 inputs', () => {
       const { queryAllByTestId } = render(
-        <SearchForm submit={() => undefined} />,
+        <MemoryRouter>
+          <SearchForm submit={() => undefined} />
+        </MemoryRouter>,
       );
 
       const removeButtons = queryAllByTestId('select-city-input-remove-button');
@@ -47,7 +56,9 @@ describe('<SearchForm/>', () => {
 
     test('Shows remove button when there is more than 2 inputs', () => {
       const { getByTestId, getAllByTestId } = render(
-        <SearchForm submit={() => undefined} />,
+        <MemoryRouter>
+          <SearchForm submit={() => undefined} />
+        </MemoryRouter>,
       );
 
       const button = getByTestId('add-localization-button');
@@ -59,7 +70,9 @@ describe('<SearchForm/>', () => {
 
     test('Removes one input when click on remove', async () => {
       const { getByTestId, getAllByTestId } = render(
-        <SearchForm submit={() => undefined} />,
+        <MemoryRouter>
+          <SearchForm submit={() => undefined} />
+        </MemoryRouter>,
       );
 
       const button = getByTestId('add-localization-button');
@@ -79,7 +92,9 @@ describe('<SearchForm/>', () => {
   describe('Add Localization Button', () => {
     test('Renders add localization button', () => {
       const { getByTestId } = render(
-        <SearchForm submit={() => undefined} />,
+        <MemoryRouter>
+          <SearchForm submit={() => undefined} />
+        </MemoryRouter>,
       );
 
       const button = getByTestId('add-localization-button');
@@ -88,7 +103,9 @@ describe('<SearchForm/>', () => {
 
     test('Adds one more input when click on button', () => {
       const { getByTestId, getAllByTestId } = render(
-        <SearchForm submit={() => undefined} />,
+        <MemoryRouter>
+          <SearchForm submit={() => undefined} />
+        </MemoryRouter>,
       );
 
       const button = getByTestId('add-localization-button');
@@ -103,7 +120,9 @@ describe('<SearchForm/>', () => {
   describe('Search Button', () => {
     test('Renders search button', () => {
       const { getByTestId } = render(
-        <SearchForm submit={() => undefined} />,
+        <MemoryRouter>
+          <SearchForm submit={() => undefined} />
+        </MemoryRouter>,
       );
 
       const button = getByTestId('search-button');
@@ -112,7 +131,9 @@ describe('<SearchForm/>', () => {
 
     test('Is disabled when doesnt have cities', () => {
       const { getByTestId } = render(
-        <SearchForm submit={() => undefined} />,
+        <MemoryRouter>
+          <SearchForm submit={() => undefined} />
+        </MemoryRouter>,
       );
 
       const button = getByTestId('search-button');
@@ -121,7 +142,9 @@ describe('<SearchForm/>', () => {
 
     test('Is not disabled when have cities filled', () => {
       const { getAllByTestId, getByTestId } = render(
-        <SearchForm submit={() => undefined} />,
+        <MemoryRouter>
+          <SearchForm submit={() => undefined} />
+        </MemoryRouter>,
       );
 
       const inputs = getAllByTestId('dropdown-input');
@@ -135,7 +158,9 @@ describe('<SearchForm/>', () => {
 
     test('Search button gets disabled when submit without date', () => {
       const { getAllByTestId, getByTestId } = render(
-        <SearchForm submit={() => undefined} />,
+        <MemoryRouter>
+          <SearchForm submit={() => undefined} />
+        </MemoryRouter>,
       );
 
       const passengersInput = getByTestId('passengers-input');
@@ -154,7 +179,9 @@ describe('<SearchForm/>', () => {
 
     test('Enables search button after type a date', () => {
       const { getAllByTestId, getByTestId } = render(
-        <SearchForm submit={() => undefined} />,
+        <MemoryRouter>
+          <SearchForm submit={() => undefined} />
+        </MemoryRouter>,
       );
 
       const dateInput = getByTestId('date-input');
@@ -175,7 +202,9 @@ describe('<SearchForm/>', () => {
 
     test('Search button gets disabled when submit without passenger', () => {
       const { getAllByTestId, getByTestId } = render(
-        <SearchForm submit={() => undefined} />,
+        <MemoryRouter>
+          <SearchForm submit={() => undefined} />
+        </MemoryRouter>,
       );
 
       const dateInput = getByTestId('date-input');
@@ -196,7 +225,9 @@ describe('<SearchForm/>', () => {
 
     test('Enables search button after type a passenger', () => {
       const { getAllByTestId, getByTestId } = render(
-        <SearchForm submit={() => undefined} />,
+        <MemoryRouter>
+          <SearchForm submit={() => undefined} />
+        </MemoryRouter>,
       );
 
       const dateInput = getByTestId('date-input');
@@ -223,9 +254,11 @@ describe('<SearchForm/>', () => {
       const handleSubmit = jest.fn();
 
       const { getByTestId, getAllByTestId, findByTestId } = render(
-        <SearchForm
-          submit={handleSubmit}
-        />,
+        <MemoryRouter>
+          <SearchForm
+            submit={handleSubmit}
+          />
+        </MemoryRouter>,
       );
 
       const dateInput = getByTestId('date-input');
@@ -254,9 +287,9 @@ describe('<SearchForm/>', () => {
       const {
         getByTestId, getAllByTestId, findByTestId, queryAllByTestId,
       } = render(
-        <SearchForm
-          submit={() => undefined}
-        />,
+        <MemoryRouter>
+          <SearchForm submit={() => undefined} />
+        </MemoryRouter>,
       );
 
       const dateInput = getByTestId('date-input');
@@ -285,9 +318,11 @@ describe('<SearchForm/>', () => {
       const handleSubmit = jest.fn();
 
       const { getByTestId, getAllByTestId, findByTestId } = render(
-        <SearchForm
-          submit={handleSubmit}
-        />,
+        <MemoryRouter>
+          <SearchForm
+            submit={handleSubmit}
+          />
+        </MemoryRouter>,
       );
 
       const dateInput = getByTestId('date-input');
@@ -316,9 +351,9 @@ describe('<SearchForm/>', () => {
       const {
         getByTestId, getAllByTestId, findByTestId, findAllByTestId,
       } = render(
-        <SearchForm
-          submit={() => undefined}
-        />,
+        <MemoryRouter>
+          <SearchForm submit={() => undefined} />
+        </MemoryRouter>,
       );
 
       const dateInput = getByTestId('date-input');
