@@ -1,11 +1,11 @@
 import {
-  Box, Flex, Image, Text,
+  Box, Flex,
 } from '@chakra-ui/react';
 import React, { useState } from 'react';
-import MozioLogo from 'assets/mozio.png';
 import SearchForm from 'components/elements/SearchForm';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ISelectCityOption } from 'common/types';
+import Header from 'components/elements/Header';
 
 const HomePage: React.FC = function () {
   const navigate = useNavigate();
@@ -33,14 +33,13 @@ const HomePage: React.FC = function () {
   return (
     <Flex h="100vh" justifyContent="center" py="128px">
       <Box w={{ base: '100%', lg: '380px' }} p={{ base: '24px', lg: 0 }} maxW="100%">
-        <Box textAlign="center">
-          <Image mx="auto" src={MozioLogo} data-testid="logo-image" />
-          <Text fontSize="14px" mb="24px" data-testid="welcome-message">
+        <Header>
+          <>
             <strong>Welcome to Mozio!</strong>
             {' '}
             Search and plan your route easily
-          </Text>
-        </Box>
+          </>
+        </Header>
 
         <SearchForm
           submit={submit}
