@@ -2,8 +2,6 @@ import { fireEvent, render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import SelectCityInput from '.';
 
-window.scrollTo = jest.fn();
-
 describe('<SelectCityInput/>', () => {
   test('Renders without error', () => {
     const { getByTestId } = render(

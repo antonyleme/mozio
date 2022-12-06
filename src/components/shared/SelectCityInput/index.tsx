@@ -115,6 +115,7 @@ const SelectCityInput: React.FC<Props> = function ({
         placeholder={placeholder}
         isInvalid={isInvalid}
         ref={dropdownInputRef}
+        invalidMessage="This city is invalid"
       />
     </Box>
   );

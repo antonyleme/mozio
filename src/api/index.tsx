@@ -37,6 +37,14 @@ export const getCitiesByKeyword = async (keyword: string): Promise<CityDataType[
   return filteredCities;
 };
 
+export const getIfCityIsValid = async (city: string): Promise<boolean> => {
+  if (!city) return false;
+
+  await new Promise((resolve) => setTimeout(resolve, 50));
+
+  return !!mockedCities.filter((cityData) => cityData.includes(city)).length;
+};
+
 export const getDistanceBetweenCities = async (cities: string[]): Promise<number[]> => {
   const citiesData = [];
 

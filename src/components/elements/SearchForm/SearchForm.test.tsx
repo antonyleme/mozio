@@ -1,8 +1,6 @@
-import { render, waitFor } from '@testing-library/react';
+import { fireEvent, render, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import SearchForm from '.';
-
-window.scrollTo = jest.fn();
 
 describe('<SearchForm/>', () => {
   test('Renders without error', () => {
@@ -105,6 +103,112 @@ describe('<SearchForm/>', () => {
 
       const button = getByTestId('search-button');
       expect(button).toBeInTheDocument();
+    });
+
+    test('Is disabled when doesnt have cities', () => {
+      const { getByTestId } = render(
+        <SearchForm submit={() => undefined} />,
+      );
+
+      const button = getByTestId('search-button');
+      expect(button).toHaveAttribute('disabled');
+    });
+
+    test('Is not disabled when have cities filled', () => {
+      const { getAllByTestId, getByTestId } = render(
+        <SearchForm submit={() => undefined} />,
+      );
+
+      const inputs = getAllByTestId('dropdown-input');
+
+      fireEvent.change(inputs[0], { target: { value: 'Paris' } });
+      fireEvent.change(inputs[1], { target: { value: 'Reims' } });
+
+      const button = getByTestId('search-button');
+      expect(button).not.toHaveAttribute('disabled');
+    });
+
+    test('Search button is disabled when submit without date', () => {
+      const { getAllByTestId, getByTestId } = render(
+        <SearchForm submit={() => undefined} />,
+      );
+
+      const passengersInput = getByTestId('passengers-input');
+
+      fireEvent.change(passengersInput, { target: { value: 1 } });
+
+      const inputs = getAllByTestId('dropdown-input');
+      fireEvent.change(inputs[0], { target: { value: 'Paris' } });
+      fireEvent.change(inputs[1], { target: { value: 'Reims' } });
+
+      const button = getByTestId('search-button');
+      userEvent.click(button);
+
+      expect(button).toHaveAttribute('disabled');
+    });
+
+    test('Enables search button after type a date', () => {
+      const { getAllByTestId, getByTestId } = render(
+        <SearchForm submit={() => undefined} />,
+      );
+
+      const dateInput = getByTestId('date-input');
+      const passengersInput = getByTestId('passengers-input');
+
+      fireEvent.change(passengersInput, { target: { value: 1 } });
+
+      const inputs = getAllByTestId('dropdown-input');
+      fireEvent.change(inputs[0], { target: { value: 'Paris' } });
+      fireEvent.change(inputs[1], { target: { value: 'Reims' } });
+
+      const button = getByTestId('search-button');
+      userEvent.click(button);
+
+      fireEvent.change(dateInput, { target: { value: '2200-10-10' } });
+      expect(button).not.toHaveAttribute('disabled');
+    });
+
+    test('Search button is disabled when submit without passenger', () => {
+      const { getAllByTestId, getByTestId } = render(
+        <SearchForm submit={() => undefined} />,
+      );
+
+      const dateInput = getByTestId('date-input');
+      const passengersInput = getByTestId('passengers-input');
+
+      fireEvent.change(dateInput, { target: { value: '2200-10-10' } });
+      fireEvent.change(passengersInput, { target: { value: '' } });
+
+      const inputs = getAllByTestId('dropdown-input');
+      fireEvent.change(inputs[0], { target: { value: 'Paris' } });
+      fireEvent.change(inputs[1], { target: { value: 'Reims' } });
+
+      const button = getByTestId('search-button');
+      userEvent.click(button);
+
+      expect(button).toHaveAttribute('disabled');
+    });
+
+    test('Enables search button after type a passenger', () => {
+      const { getAllByTestId, getByTestId } = render(
+        <SearchForm submit={() => undefined} />,
+      );
+
+      const dateInput = getByTestId('date-input');
+      const passengersInput = getByTestId('passengers-input');
+
+      fireEvent.change(dateInput, { target: { value: '2200-10-10' } });
+      fireEvent.change(passengersInput, { target: { value: '' } });
+
+      const inputs = getAllByTestId('dropdown-input');
+      fireEvent.change(inputs[0], { target: { value: 'Paris' } });
+      fireEvent.change(inputs[1], { target: { value: 'Reims' } });
+
+      const button = getByTestId('search-button');
+      userEvent.click(button);
+
+      fireEvent.change(passengersInput, { target: { value: '1' } });
+      expect(button).not.toHaveAttribute('disabled');
     });
   });
 });

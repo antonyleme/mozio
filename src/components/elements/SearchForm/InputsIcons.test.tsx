@@ -1,8 +1,6 @@
 import { render } from '@testing-library/react';
 import InputsIcons from './InputsIcons';
 
-window.scrollTo = jest.fn();
-
 describe('<InputsIcons/>', () => {
   test('Renders without error', () => {
     const { getByTestId } = render(

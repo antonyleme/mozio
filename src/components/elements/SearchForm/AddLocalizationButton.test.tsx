@@ -2,8 +2,6 @@ import { render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import AddLocalizationButton from './AddLocalizationButton';
 
-window.scrollTo = jest.fn();
-
 describe('<AddLocalizationButton/>', () => {
   test('Renders without error', () => {
     const { getByTestId } = render(

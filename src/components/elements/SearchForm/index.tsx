@@ -1,6 +1,7 @@
 import {
   Box, Button, Flex, FormControl, FormErrorMessage, FormLabel, Grid, HStack, Input, Stack,
 } from '@chakra-ui/react';
+import { getIfCityIsValid } from 'api';
 import { ISelectCityOption } from 'common/types';
 import { FormsIcon } from 'components/icons';
 import SelectCityInput from 'components/shared/SelectCityInput';
@@ -39,6 +40,23 @@ const SearchForm: React.FC<Props> = function ({ submit, defaultValues }) {
   const [passengers, setPassengers] = useState('1');
   const [isPassengersInvalid, setIsPassengersInvalid] = useState(false);
 
+  useEffect(() => {
+    if (date && isDateInvalid) {
+      setIsDateInvalid(false);
+    }
+
+    if (passengers && isPassengersInvalid) {
+      setIsPassengersInvalid(false);
+    }
+  }, [
+    date,
+    passengers,
+    isDateInvalid,
+    isPassengersInvalid,
+    setIsDateInvalid,
+    setIsPassengersInvalid,
+  ]);
+
   const minDate = (): string => {
     const d = new Date();
     d.setDate(d.getDate() + 1);
@@ -75,7 +93,7 @@ const SearchForm: React.FC<Props> = function ({ submit, defaultValues }) {
     }
 
     if (defaultValues?.passengers) {
-      setDate(defaultValues?.passengers);
+      setPassengers(defaultValues?.passengers);
     }
   }, [defaultValues]);
 
@@ -118,7 +136,9 @@ const SearchForm: React.FC<Props> = function ({ submit, defaultValues }) {
     return emptyValues.length;
   };
 
-  const handleSubmit = (): void => {
+  const [submiting, setSubmiting] = useState(false);
+
+  const handleSubmit = async (): Promise<void> => {
     if (getEmptyValuesLength() > 0) {
       return;
     }
@@ -137,7 +157,25 @@ const SearchForm: React.FC<Props> = function ({ submit, defaultValues }) {
 
     if (hasInvalid) return;
 
-    submit(destinies, date, passengers);
+    setSubmiting(true);
+
+    const destiniesAux = [...destinies];
+
+    // eslint-disable-next-line no-unreachable-loop, no-restricted-syntax
+    for (const destiny of destiniesAux) {
+      // eslint-disable-next-line no-await-in-loop
+      const isValid = await getIfCityIsValid(destiny.value);
+
+      if (!isValid) {
+        hasInvalid = true;
+        destiny.isInvalid = true;
+        setDestinies(destiniesAux);
+      }
+    }
+
+    if (!hasInvalid) submit(destinies, date, passengers);
+
+    setSubmiting(false);
   };
 
   const isFormInvalid = (): boolean => isDateInvalid
@@ -176,6 +214,7 @@ const SearchForm: React.FC<Props> = function ({ submit, defaultValues }) {
                 type="date"
                 min={minDate()}
                 {...commonInputProps}
+                data-testid="date-input"
               />
               <FormErrorMessage>
                 Please fill the date
@@ -190,6 +229,7 @@ const SearchForm: React.FC<Props> = function ({ submit, defaultValues }) {
                 type="number"
                 placeholder="1"
                 {...commonInputProps}
+                data-testid="passengers-input"
               />
               <FormErrorMessage>
                 Please fill the passengers number
@@ -262,6 +302,8 @@ const SearchForm: React.FC<Props> = function ({ submit, defaultValues }) {
         data-testid="search-button"
         onClick={handleSubmit}
         isDisabled={isFormInvalid()}
+        mb="80px"
+        isLoading={submiting}
       >
         Search
       </Button>
