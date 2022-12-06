@@ -17,7 +17,7 @@ const ResultPage: React.FC = function () {
   const navigate = useNavigate();
   const toast = useToast();
 
-  const [distancesData, setDistancesData] = useState<ICityDistance[]>([]);
+  const [distancesData, setDistancesData] = useState<ICityDistance[]>();
 
   React.useEffect(() => {
     if (!date || !passengers || !cities) {

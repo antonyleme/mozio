@@ -1,5 +1,5 @@
 import {
-  Box, Button, Flex, FormControl, FormLabel, Grid, HStack, Input, Stack, Text,
+  Box, Button, Flex, FormControl, FormLabel, Grid, HStack, Input, Spinner, Stack, Text,
 } from '@chakra-ui/react';
 import { ICityDistance } from 'common/types';
 import { FormsIcon, PinIcon } from 'components/icons';
@@ -11,7 +11,7 @@ import InputsIcons from '../SearchForm/InputsIcons';
 interface Props {
   date: string,
   passengers: string,
-  distances: ICityDistance[]
+  distances: ICityDistance[] | undefined
 }
 
 const FormResult: React.FC<Props> = function ({
@@ -24,7 +24,7 @@ const FormResult: React.FC<Props> = function ({
     },
   };
 
-  const totalDistance = distances.reduce((total, el) => total + el.distance, 0);
+  const totalDistance = distances?.reduce((total, el) => total + el.distance, 0) || 0;
 
   return (
     <Box>
@@ -66,103 +66,124 @@ const FormResult: React.FC<Props> = function ({
           </Grid>
         </HStack>
 
-        <Box mt="8px" mb="40px">
-          {
-            distances.map((item, i) => (
-              <Box key={`result-item-${i}`}>
-                <Stack spacing="13px" position="relative">
-                  <Box
-                    position="absolute"
-                    h="calc(100% - 70px)"
-                    w="1px"
-                    border="1px dashed"
-                    borderColor="#717579"
-                    left="11px"
-                    top="30px"
-                    as={motion.div}
-                    layout
-                  />
+        {
+          distances
+            ? (
+              <Box mt="8px" mb="40px">
+                {
+                  distances?.map((item, i) => (
+                    <Box key={`result-item-${i}`}>
+                      <Stack spacing="13px" position="relative">
+                        <Box
+                          position="absolute"
+                          h="calc(100% - 70px)"
+                          w="1px"
+                          border="1px dashed"
+                          borderColor="#717579"
+                          left="11px"
+                          top="30px"
+                          as={motion.div}
+                          layout
+                        />
 
-                  {
-                    item.cities.map((city, index) => (
+                        {
+                          item.cities.map((city, index) => (
+                            <Box
+                              position="relative"
+                              key={`result-city-${index}`}
+                            >
+                              <Flex
+                                alignItems="center"
+                                gap="14px"
+                                position="relative"
+                              >
+                                <InputsIcons
+                                  index={index}
+                                  size={5}
+                                />
+
+                                <Flex h="50px" alignItems="center">
+                                  <Text transform="translateY(-1px)">{city}</Text>
+                                </Flex>
+                              </Flex>
+                            </Box>
+                          ))
+                        }
+                      </Stack>
                       <Box
-                        position="relative"
-                        key={`result-city-${index}`}
+                        bg="blue.50"
+                        color="blue.brand"
+                        px="8px"
+                        py="4px"
+                        border="1px solid"
+                        borderColor="blue.brand"
+                        fontSize="14px"
+                        maxW="50%"
                       >
-                        <Flex
-                          alignItems="center"
-                          gap="14px"
-                          position="relative"
-                        >
-                          <InputsIcons
-                            index={index}
-                            size={5}
-                          />
-
-                          <Flex h="50px" alignItems="center">
-                            <Text transform="translateY(-1px)">{city}</Text>
-                          </Flex>
-                        </Flex>
+                        <Text fontSize="14px">
+                          Relative distance:
+                          {' '}
+                          <strong>
+                            {`${(item.distance / 1000).toFixed(0)}km`}
+                          </strong>
+                        </Text>
                       </Box>
-                    ))
-                  }
-                </Stack>
+                    </Box>
+                  ))
+                }
+
                 <Box
                   bg="blue.50"
                   color="blue.brand"
-                  px="8px"
-                  py="4px"
+                  p="8px"
                   border="1px solid"
                   borderColor="blue.brand"
                   fontSize="14px"
-                  maxW="50%"
+                  mt="24px"
                 >
-                  <Text fontSize="14px">
-                    Relative distance:
-                    {' '}
-                    <strong>
-                      {`${(item.distance / 1000).toFixed(0)}km`}
-                    </strong>
-                  </Text>
+                  <HStack>
+                    <Box fontSize="20px" transform="translateY(-3px)">
+                      <PinIcon />
+                    </Box>
+                    <Text>
+                      Total distance:
+                      {' '}
+                      <strong>{`${((totalDistance) / 1000).toFixed(0)}km`}</strong>
+                    </Text>
+                  </HStack>
                 </Box>
               </Box>
-            ))
-          }
-
-          <Box
-            bg="blue.50"
-            color="blue.brand"
-            p="8px"
-            border="1px solid"
-            borderColor="blue.brand"
-            fontSize="14px"
-            mt="24px"
-          >
-            <HStack>
-              <Box fontSize="20px" transform="translateY(-3px)">
-                <PinIcon />
-              </Box>
-              <Text>
-                Total distance:
-                {' '}
-                <strong>{`${((totalDistance) / 1000).toFixed(0)}km`}</strong>
-              </Text>
-            </HStack>
-          </Box>
-        </Box>
+            )
+            : (
+              <Flex
+                flexDir="column"
+                alignItems="center"
+                justifyContent="center"
+                py="40px"
+              >
+                <Spinner color="blue.400" mb="8px" />
+                <Text fontSize="14px">Calculating your route...</Text>
+              </Flex>
+            )
+        }
       </Box>
 
-      <Link to="/">
-        <Button
-          h="50px"
-          variant="branded"
-          w="100%"
-          data-testid="search-button"
-          mb="80px"
-        >
-          New Search
-        </Button>
-      </Link>
+      {
+        distances
+        && (
+          <Link to="/">
+            <Button
+              h="50px"
+              variant="branded"
+              w="100%"
+              data-testid="search-button"
+              mb="80px"
+            >
+              New Search
+            </Button>
+          </Link>
+        )
+      }
     </Box>
   );
 };
