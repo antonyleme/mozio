@@ -11,26 +11,15 @@ describe('<HomePage/>', () => {
     );
   });
 
-  test('Has logo', () => {
+  test('Has header', () => {
     const { getByTestId } = render(
       <MemoryRouter>
         <HomePage />
       </MemoryRouter>,
     );
 
-    const logo = getByTestId('logo-image');
-    expect(logo).toBeInTheDocument();
-  });
-
-  test('Has welcome message', () => {
-    const { getByTestId } = render(
-      <MemoryRouter>
-        <HomePage />
-      </MemoryRouter>,
-    );
-
-    const message = getByTestId('welcome-message');
-    expect(message).toBeInTheDocument();
+    const header = getByTestId('header');
+    expect(header).toBeInTheDocument();
   });
 
   test('Has search form', () => {
