@@ -13,17 +13,14 @@ describe('<AddLocalizationButton/>', () => {
   });
 
   test('Calls onClick when clicked', () => {
-    let clicked = false;
+    const handeClick = jest.fn();
 
     const { getByTestId } = render(
-      <AddLocalizationButton onClick={() => {
-        clicked = true;
-      }}
-      />,
+      <AddLocalizationButton onClick={handeClick} />,
     );
 
     const button = getByTestId('add-localization-button');
     userEvent.click(button);
-    expect(clicked).toBeTruthy();
+    expect(handeClick).toHaveBeenCalled();
   });
 });

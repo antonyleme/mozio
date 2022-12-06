@@ -7,6 +7,7 @@ import { FormsIcon } from 'components/icons';
 import SelectCityInput from 'components/shared/SelectCityInput';
 import { AnimatePresence, motion } from 'framer-motion';
 import React, { useEffect, useState } from 'react';
+import { useImmer } from 'use-immer';
 import { v4 as uuid } from 'uuid';
 import AddLocalizationButton from './AddLocalizationButton';
 import InputsIcons from './InputsIcons';
@@ -21,18 +22,7 @@ interface Props {
 }
 
 const SearchForm: React.FC<Props> = function ({ submit, defaultValues }) {
-  const [destinies, setDestinies] = React.useState<ISelectCityOption[]>([
-    {
-      id: uuid(),
-      value: '',
-      isInvalid: false,
-    },
-    {
-      id: uuid(),
-      value: '',
-      isInvalid: false,
-    },
-  ]);
+  const [destinies, updateDestinies] = useImmer<ISelectCityOption[]>([]);
 
   const [date, setDate] = useState('');
   const [isDateInvalid, setIsDateInvalid] = useState(false);
@@ -65,28 +55,30 @@ const SearchForm: React.FC<Props> = function ({ submit, defaultValues }) {
   };
 
   useEffect(() => {
-    if (defaultValues?.destinies?.length) {
-      const newDestinies: ISelectCityOption[] = [];
+    let newDestinies: ISelectCityOption[] = [
+      {
+        id: uuid(),
+        value: '',
+        isInvalid: false,
+      },
+      {
+        id: uuid(),
+        value: '',
+        isInvalid: false,
+      },
+    ];
 
-      defaultValues.destinies.forEach((val) => {
-        newDestinies.push({
+    if (defaultValues?.destinies?.length) {
+      newDestinies = defaultValues?.destinies.map((val) => (
+        {
           id: uuid(),
           value: val,
           isInvalid: false,
-        });
-      });
-
-      // In case there is only one city in the query param to keep 2 inputs at least
-      if (newDestinies.length === 1) {
-        newDestinies.push({
-          id: uuid(),
-          value: '',
-          isInvalid: false,
-        });
-      }
-
-      setDestinies(newDestinies);
+        }
+      ));
     }
+
+    updateDestinies(() => newDestinies);
 
     if (defaultValues?.date) {
       setDate(defaultValues?.date);
@@ -95,27 +87,28 @@ const SearchForm: React.FC<Props> = function ({ submit, defaultValues }) {
     if (defaultValues?.passengers) {
       setPassengers(defaultValues?.passengers);
     }
-  }, [defaultValues]);
+  }, [defaultValues, updateDestinies]);
 
   const onChange = (value: string, index: number): void => {
     if (destinies[index].value === value) return;
 
-    const copy = [...destinies];
-    copy[index].value = value;
-
-    setDestinies(copy);
+    updateDestinies((draft) => {
+      draft[index].value = value;
+    });
   };
 
   const add = (): void => {
-    setDestinies([...destinies, {
-      id: uuid(),
-      value: '',
-      isInvalid: false,
-    }]);
+    updateDestinies((draft) => {
+      draft.push({
+        id: uuid(),
+        value: '',
+        isInvalid: false,
+      });
+    });
   };
 
   const remove = (id: string): void => {
-    setDestinies(destinies.filter((d) => d.id !== id));
+    updateDestinies((draft) => draft.filter((d) => d.id !== id));
   };
 
   const getPlaceholder = (index: number): string => {
@@ -159,19 +152,16 @@ const SearchForm: React.FC<Props> = function ({ submit, defaultValues }) {
 
     setSubmiting(true);
 
-    const destiniesAux = [...destinies];
+    const promises = destinies.map((destiny) => getIfCityIsValid(destiny.value));
+    const isValidResults = await Promise.all(promises);
 
-    // eslint-disable-next-line no-unreachable-loop, no-restricted-syntax
-    for (const destiny of destiniesAux) {
-      // eslint-disable-next-line no-await-in-loop
-      const isValid = await getIfCityIsValid(destiny.value);
+    hasInvalid = isValidResults.includes(false);
 
-      if (!isValid) {
-        hasInvalid = true;
-        destiny.isInvalid = true;
-        setDestinies(destiniesAux);
+    updateDestinies((draft) => {
+      for (let i = 0; i < draft.length; i += 1) {
+        draft[i].isInvalid = !isValidResults[i];
       }
-    }
+    });
 
     if (!hasInvalid) submit(destinies, date, passengers);
 

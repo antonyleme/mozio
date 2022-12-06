@@ -1,4 +1,5 @@
-import { CityDataType } from 'common/types';
+import { CityDataType, ICityDistance } from 'common/types';
+import { getDistance } from 'geolib';
 
 const mockedCities: CityDataType[] = [
   ['Paris', 48.856614, 2.352222],
@@ -42,22 +43,37 @@ export const getIfCityIsValid = async (city: string): Promise<boolean> => {
 
   await new Promise((resolve) => setTimeout(resolve, 50));
 
-  return !!mockedCities.filter((cityData) => cityData.includes(city)).length;
+  return !!mockedCities.filter(
+    (cityData) => (cityData[0] as string).toLowerCase() === city.toLowerCase(),
+  ).length;
 };
 
-export const getDistanceBetweenCities = async (cities: string[]): Promise<number[]> => {
-  const citiesData = [];
+export const getDistanceBetweenCities = async (cities: string[]): Promise<ICityDistance[]> => {
+  const citiesData: CityDataType[] = [];
 
   cities.forEach((city) => {
     const mockedCity = mockedCities.find((c) => (c[0] as string) === city);
 
-    citiesData.push(mockedCity);
+    if (mockedCity) {
+      citiesData.push(mockedCity);
+    }
   });
 
-  const distances: number[] = [];
+  const distances: ICityDistance[] = [];
 
   for (let i = 0; i < citiesData.length - 1; i += 1) {
-    // const distance =
+    const [fromCity, fromLat, fromLong] = citiesData[i];
+    const [toCity, toLat, toLong] = citiesData[i + 1];
+
+    const distance = getDistance(
+      { latitude: fromLat, longitude: fromLong },
+      { latitude: toLat, longitude: toLong },
+    );
+
+    distances.push({
+      cities: [(fromCity as string), (toCity as string)],
+      distance,
+    });
   }
 
   await new Promise((resolve) => setTimeout(resolve, 3000));

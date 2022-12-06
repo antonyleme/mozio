@@ -61,10 +61,7 @@ describe('<SelectCityInput/>', () => {
   });
 
   test('Calls handle remove when clicked button', () => {
-    let called = false;
-    const handleRemove = (): void => {
-      called = true;
-    };
+    const handleRemove = jest.fn();
 
     const { getByTestId } = render(
       <SelectCityInput
@@ -77,7 +74,7 @@ describe('<SelectCityInput/>', () => {
     const button = getByTestId('select-city-input-remove-button');
     userEvent.click(button);
 
-    expect(called).toBeTruthy();
+    expect(handleRemove).toHaveBeenCalled();
   });
 
   test('Hides remove button when not hovered', () => {

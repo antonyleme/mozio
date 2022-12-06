@@ -1,6 +1,11 @@
-import { fireEvent, render, waitFor } from '@testing-library/react';
+import {
+  fireEvent, render, waitFor,
+} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { getIfCityIsValid } from 'api';
 import SearchForm from '.';
+
+jest.mock('api', () => ({ getIfCityIsValid: jest.fn() }));
 
 describe('<SearchForm/>', () => {
   test('Renders without error', () => {
@@ -128,7 +133,7 @@ describe('<SearchForm/>', () => {
       expect(button).not.toHaveAttribute('disabled');
     });
 
-    test('Search button is disabled when submit without date', () => {
+    test('Search button gets disabled when submit without date', () => {
       const { getAllByTestId, getByTestId } = render(
         <SearchForm submit={() => undefined} />,
       );
@@ -168,7 +173,7 @@ describe('<SearchForm/>', () => {
       expect(button).not.toHaveAttribute('disabled');
     });
 
-    test('Search button is disabled when submit without passenger', () => {
+    test('Search button gets disabled when submit without passenger', () => {
       const { getAllByTestId, getByTestId } = render(
         <SearchForm submit={() => undefined} />,
       );
@@ -209,6 +214,130 @@ describe('<SearchForm/>', () => {
 
       fireEvent.change(passengersInput, { target: { value: '1' } });
       expect(button).not.toHaveAttribute('disabled');
+    });
+  });
+
+  describe('Valid form submit', () => {
+    test('Submits when city is valid', async () => {
+      (getIfCityIsValid as jest.Mock).mockImplementation(() => true);
+      const handleSubmit = jest.fn();
+
+      const { getByTestId, getAllByTestId, findByTestId } = render(
+        <SearchForm
+          submit={handleSubmit}
+        />,
+      );
+
+      const dateInput = getByTestId('date-input');
+      const passengersInput = getByTestId('passengers-input');
+      fireEvent.change(dateInput, { target: { value: '2200-10-10' } });
+      fireEvent.change(passengersInput, { target: { value: '1' } });
+
+      const inputs = getAllByTestId('dropdown-input');
+      fireEvent.change(inputs[0], { target: { value: 'Valid city 1' } });
+      fireEvent.change(inputs[1], { target: { value: 'Valid city 2' } });
+
+      const button = await findByTestId('search-button');
+
+      await waitFor(async () => {
+        userEvent.click(button);
+      });
+
+      await waitFor(() => {
+        expect(handleSubmit).toHaveBeenCalled();
+      });
+    });
+
+    test('Doesn`t shows invalid when try to submit valid city', async () => {
+      (getIfCityIsValid as jest.Mock).mockImplementation(() => true);
+
+      const {
+        getByTestId, getAllByTestId, findByTestId, queryAllByTestId,
+      } = render(
+        <SearchForm
+          submit={() => undefined}
+        />,
+      );
+
+      const dateInput = getByTestId('date-input');
+      const passengersInput = getByTestId('passengers-input');
+      fireEvent.change(dateInput, { target: { value: '2200-10-10' } });
+      fireEvent.change(passengersInput, { target: { value: '1' } });
+
+      const inputs = getAllByTestId('dropdown-input');
+      fireEvent.change(inputs[0], { target: { value: 'Valid city 1' } });
+      fireEvent.change(inputs[1], { target: { value: 'Valid city 2' } });
+
+      const button = await findByTestId('search-button');
+
+      await waitFor(async () => {
+        userEvent.click(button);
+      });
+
+      const alerts = queryAllByTestId('dropdown-input-alert');
+      expect(alerts.length).toBe(0);
+    });
+  });
+
+  describe('Invalid form submit', () => {
+    test('Doesn`t submit when city is invalid', async () => {
+      (getIfCityIsValid as jest.Mock).mockImplementation(() => false);
+      const handleSubmit = jest.fn();
+
+      const { getByTestId, getAllByTestId, findByTestId } = render(
+        <SearchForm
+          submit={handleSubmit}
+        />,
+      );
+
+      const dateInput = getByTestId('date-input');
+      const passengersInput = getByTestId('passengers-input');
+      fireEvent.change(dateInput, { target: { value: '2200-10-10' } });
+      fireEvent.change(passengersInput, { target: { value: '1' } });
+
+      const inputs = getAllByTestId('dropdown-input');
+      fireEvent.change(inputs[0], { target: { value: 'Invalid city 1' } });
+      fireEvent.change(inputs[1], { target: { value: 'Invalid city 2' } });
+
+      const button = await findByTestId('search-button');
+
+      await waitFor(async () => {
+        userEvent.click(button);
+      });
+
+      await waitFor(() => {
+        expect(handleSubmit).not.toHaveBeenCalled();
+      });
+    });
+
+    test('Shows invalid when try to submit invalid city', async () => {
+      (getIfCityIsValid as jest.Mock).mockImplementation(() => false);
+
+      const {
+        getByTestId, getAllByTestId, findByTestId, findAllByTestId,
+      } = render(
+        <SearchForm
+          submit={() => undefined}
+        />,
+      );
+
+      const dateInput = getByTestId('date-input');
+      const passengersInput = getByTestId('passengers-input');
+      fireEvent.change(dateInput, { target: { value: '2200-10-10' } });
+      fireEvent.change(passengersInput, { target: { value: '1' } });
+
+      const inputs = getAllByTestId('dropdown-input');
+      fireEvent.change(inputs[0], { target: { value: 'Invalid city 1' } });
+      fireEvent.change(inputs[1], { target: { value: 'Invalid city 2' } });
+
+      const button = await findByTestId('search-button');
+
+      await waitFor(async () => {
+        userEvent.click(button);
+      });
+
+      const alerts = await findAllByTestId('dropdown-input-alert');
+      expect(alerts.length).toBe(2);
     });
   });
 });

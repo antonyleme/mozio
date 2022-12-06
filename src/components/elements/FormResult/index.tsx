@@ -1,6 +1,7 @@
 import {
   Box, Button, Flex, FormControl, FormLabel, Grid, HStack, Input, Stack, Text,
 } from '@chakra-ui/react';
+import { ICityDistance } from 'common/types';
 import { FormsIcon, PinIcon } from 'components/icons';
 import { motion } from 'framer-motion';
 import React from 'react';
@@ -9,16 +10,21 @@ import InputsIcons from '../SearchForm/InputsIcons';
 
 interface Props {
   date: string,
-  passengers: string
+  passengers: string,
+  distances: ICityDistance[]
 }
 
-const FormResult: React.FC<Props> = function ({ date, passengers }) {
+const FormResult: React.FC<Props> = function ({
+  date, passengers, distances,
+}) {
   const commonInputProps = {
     variant: 'custom',
     _disabled: {
       borderColor: 'gray.200',
     },
   };
+
+  const totalDistance = distances.reduce((total, el) => total + el.distance, 0);
 
   return (
     <Box>
@@ -61,42 +67,67 @@ const FormResult: React.FC<Props> = function ({ date, passengers }) {
         </HStack>
 
         <Box mt="8px" mb="40px">
-          <Stack spacing="13px" position="relative">
-            <Box
-              position="absolute"
-              h="calc(100% - 70px)"
-              w="1px"
-              border="1px dashed"
-              borderColor="#717579"
-              left="11px"
-              top="30px"
-              as={motion.div}
-              layout
-            />
+          {
+            distances.map((item, i) => (
+              <Box key={`result-item-${i}`}>
+                <Stack spacing="13px" position="relative">
+                  <Box
+                    position="absolute"
+                    h="calc(100% - 70px)"
+                    w="1px"
+                    border="1px dashed"
+                    borderColor="#717579"
+                    left="11px"
+                    top="30px"
+                    as={motion.div}
+                    layout
+                  />
 
-            {
-              Array.from({ length: 5 }).map((destiny, index) => (
+                  {
+                    item.cities.map((city, index) => (
+                      <Box
+                        position="relative"
+                        key={`result-city-${index}`}
+                      >
+                        <Flex
+                          alignItems="center"
+                          gap="14px"
+                          position="relative"
+                        >
+                          <InputsIcons
+                            index={index}
+                            size={5}
+                          />
+
+                          <Flex h="50px" alignItems="center">
+                            <Text transform="translateY(-1px)">{city}</Text>
+                          </Flex>
+                        </Flex>
+                      </Box>
+                    ))
+                  }
+                </Stack>
                 <Box
-                  position="relative"
+                  bg="blue.50"
+                  color="blue.brand"
+                  px="8px"
+                  py="4px"
+                  border="1px solid"
+                  borderColor="blue.brand"
+                  fontSize="14px"
+                  maxW="50%"
                 >
-                  <Flex
-                    alignItems="center"
-                    gap="14px"
-                    position="relative"
-                  >
-                    <InputsIcons
-                      index={index}
-                      size={5}
-                    />
-
-                    <Flex h="50px" alignItems="center">
-                      <Text transform="translateY(-1px)">Result 1</Text>
-                    </Flex>
-                  </Flex>
+                  <Text fontSize="14px">
+                    Relative distance:
+                    {' '}
+                    <strong>
+                      {`${(item.distance / 1000).toFixed(0)}km`}
+                    </strong>
+                  </Text>
                 </Box>
-              ))
-            }
-          </Stack>
+              </Box>
+            ))
+          }
 
           <Box
             bg="blue.50"
@@ -105,7 +136,7 @@ const FormResult: React.FC<Props> = function ({ date, passengers }) {
             border="1px solid"
             borderColor="blue.brand"
             fontSize="14px"
-            mt="16px"
+            mt="24px"
           >
             <HStack>
               <Box fontSize="20px" transform="translateY(-3px)">
@@ -114,7 +145,7 @@ const FormResult: React.FC<Props> = function ({ date, passengers }) {
               <Text>
                 Total distance:
                 {' '}
-                <strong>900km</strong>
+                <strong>{`${((totalDistance) / 1000).toFixed(0)}km`}</strong>
               </Text>
             </HStack>
           </Box>

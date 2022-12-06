@@ -62,7 +62,9 @@
       "react/jsx-props-no-spreading": "off",
       "import/prefer-default-export": "off",
       "react/require-default-props": "off",
-      "no-promise-executor-return": "off"
+      "no-promise-executor-return": "off",
+      "no-param-reassign": "off",
+      "react/no-array-index-key": "off"
     },
     "settings": {
       "import/resolver": {

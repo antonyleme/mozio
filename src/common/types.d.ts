@@ -5,3 +5,8 @@ export interface ISelectCityOption {
 }
 
 export type CityDataType = Array<string | number>
+
+export interface ICityDistance {
+  cities: string[],
+  distance: number
+}

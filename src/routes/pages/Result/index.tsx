@@ -1,21 +1,26 @@
 import {
   Box, Flex, useToast,
 } from '@chakra-ui/react';
-import React from 'react';
+import React, { useState } from 'react';
 import FormResult from 'components/elements/FormResult';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import Header from 'components/elements/Header';
+import { getDistanceBetweenCities } from 'api';
+import { ICityDistance } from 'common/types';
 
 const ResultPage: React.FC = function () {
   const [searchParams] = useSearchParams();
   const [date] = React.useState(searchParams.get('date'));
   const [passengers] = React.useState(searchParams.get('passengers'));
+  const [cities] = React.useState(searchParams.get('cities')?.split(','));
 
   const navigate = useNavigate();
   const toast = useToast();
 
+  const [distancesData, setDistancesData] = useState<ICityDistance[]>([]);
+
   React.useEffect(() => {
-    if (!date || !passengers) {
+    if (!date || !passengers || !cities) {
       navigate('/');
       toast({
         status: 'error',
@@ -23,7 +28,17 @@ const ResultPage: React.FC = function () {
         description: 'Invalid data was provided',
       });
     }
-  }, [date, passengers, navigate, toast]);
+  }, [date, cities, passengers, navigate, toast]);
+
+  React.useEffect(() => {
+    const getData = async (): Promise<void> => {
+      if (cities) {
+        const response = await getDistanceBetweenCities(cities);
+        setDistancesData(response);
+      }
+    };
+    getData();
+  }, [cities]);
 
   return (
     <Flex h="100vh" justifyContent="center" py="128px">
@@ -37,11 +52,12 @@ const ResultPage: React.FC = function () {
         </Header>
 
         {
-          (date && passengers)
+          (date && passengers && cities)
           && (
             <FormResult
               date={date}
               passengers={passengers}
+              distances={distancesData}
             />
           )
         }

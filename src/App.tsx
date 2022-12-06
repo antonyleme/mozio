@@ -1,7 +1,7 @@
 import { ChakraProvider, extendTheme } from '@chakra-ui/react';
 import React from 'react';
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
-import Bg from 'assets/bg.png';
+import Bg from 'assets/bg.svg';
 import routes from './routes';
 
 const App: React.FC = function () {
