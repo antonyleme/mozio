@@ -92,7 +92,7 @@ const SearchForm: React.FC<Props> = function ({ submit }) {
   }, [date, passengers, destinies, setSearchParams]);
 
   useEffect(() => {
-    if (date && isDateInvalid) {
+    if (date && new Date(date) > new Date() && isDateInvalid) {
       setIsDateInvalid(false);
     }
 
@@ -164,7 +164,9 @@ const SearchForm: React.FC<Props> = function ({ submit }) {
 
     let hasInvalid = false;
 
-    if (!date) {
+    const today = new Date();
+
+    if (!date || new Date(date) <= today) {
       setIsDateInvalid(true);
       hasInvalid = true;
     }
@@ -233,7 +235,7 @@ const SearchForm: React.FC<Props> = function ({ submit }) {
                 data-testid="date-input"
               />
               <FormErrorMessage data-testid="date-input-error">
-                Please fill the date
+                Please fill a valid date
               </FormErrorMessage>
             </FormControl>
 
