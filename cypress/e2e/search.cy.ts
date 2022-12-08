@@ -39,6 +39,16 @@ describe('Fill the search form', () => {
     cy.get('[data-testid="date-input-error"]').should('be.visible');
   });
 
+  it('Should be unable to submit form when date is in the past', () => {
+    cy.get('[data-testid="date-input"]').type('2020-10-10');
+    cy.get('[data-testid="passengers-input"]').clear().type('2');
+    cy.get('input[placeholder="Select your destiny city"]').type('Nice');
+    cy.get('input[placeholder="Select your origin city"]').type('Paris');
+
+    cy.get('[data-testid="search-button"]').click();
+    cy.get('[data-testid="date-input-error"]').should('be.visible');
+  });
+
   it('Should be unable to submit form without filling the passengers', () => {
     cy.get('[data-testid="passengers-input"]').clear();
     cy.get('[data-testid="date-input"]').type('2200-10-10');
