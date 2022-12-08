@@ -17,7 +17,3 @@ To run e2e tests:
 
 To open cypress:
 ### `yarn cypress:open`
-
-To build the application:
-### `yarn build`
-
