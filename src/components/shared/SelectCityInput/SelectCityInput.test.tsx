@@ -1,107 +1,91 @@
-import { fireEvent, render } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import SelectCityInput from '.';
 
 describe('<SelectCityInput/>', () => {
-  test('Renders without error', () => {
-    const { getByTestId } = render(
-      <SelectCityInput
-        value=""
-        onChange={() => undefined}
-      />,
-    );
+  let value = '';
+  const updateValue = (val: string): void => {
+    value = val;
+  };
+  const handleRemove = jest.fn();
 
-    const element = getByTestId('select-city-input');
-    expect(element).toBeInTheDocument();
+  describe('With handle remove', () => {
+    beforeEach(() => {
+      render(
+        <SelectCityInput
+          value={value}
+          onChange={updateValue}
+          handleRemove={handleRemove}
+          placeholder="Custom placeholder"
+        />,
+      );
+    });
+
+    test('Renders without error', () => {
+      const element = screen.getByTestId('select-city-input');
+      expect(element).toBeInTheDocument();
+    });
+
+    test('Updates state on change correctly', () => {
+      value = '';
+
+      const input = screen.getByTestId('dropdown-input');
+
+      fireEvent.change(input, { target: { value: 'Value given' } });
+      expect(value).toBe('Value given');
+    });
+
+    test('Shows correct placeholder', () => {
+      const input = screen.getByPlaceholderText('Custom placeholder');
+      expect(input).toBeInTheDocument();
+    });
+
+    test('Shows remove button when handleRemove is given', () => {
+      const button = screen.getByTestId('select-city-input-remove-button');
+      expect(button).toBeInTheDocument();
+    });
+
+    test('Calls handle remove when clicked button', () => {
+      const button = screen.getByTestId('select-city-input-remove-button');
+      userEvent.click(button);
+
+      expect(handleRemove).toHaveBeenCalled();
+    });
+
+    test('Hides remove button when not hovered', () => {
+      const button = screen.getByTestId('select-city-input-remove-button');
+
+      expect(button).not.toBeVisible();
+    });
   });
 
-  test('Updates state on change correctly', () => {
-    let value = '';
-    const updateValue = (val: string): void => {
-      value = val;
-    };
+  describe('Without handle remove', () => {
+    test('Doesn`t show remove button when handleRemove is not given', () => {
+      render(
+        <SelectCityInput
+          value={value}
+          onChange={updateValue}
+        />,
+      );
 
-    const { getByTestId } = render(
-      <SelectCityInput
-        value={value}
-        onChange={updateValue}
-      />,
-    );
-
-    const input = getByTestId('dropdown-input');
-
-    fireEvent.change(input, { target: { value: 'Value given' } });
-    expect(value).toBe('Value given');
+      const button = screen.queryByTestId('select-city-input-remove-button');
+      expect(button).not.toBeInTheDocument();
+    });
   });
 
-  test('Shows correct placeholder', () => {
-    const { getByPlaceholderText } = render(
-      <SelectCityInput
-        value=""
-        onChange={() => undefined}
-        placeholder="Custom placeholder"
-      />,
-    );
+  describe('With invalid', () => {
+    test('Shows is invalid alert when given', () => {
+      render(
+        <SelectCityInput
+          value=""
+          onChange={() => undefined}
+          handleRemove={() => undefined}
+          isInvalid
+        />,
+      );
 
-    const input = getByPlaceholderText('Custom placeholder');
-    expect(input).toBeInTheDocument();
-  });
-
-  test('Shows remove button when handleRemove is given', () => {
-    const { getByTestId } = render(
-      <SelectCityInput
-        value=""
-        onChange={() => undefined}
-        handleRemove={() => undefined}
-      />,
-    );
-
-    const button = getByTestId('select-city-input-remove-button');
-    expect(button).toBeInTheDocument();
-  });
-
-  test('Calls handle remove when clicked button', () => {
-    const handleRemove = jest.fn();
-
-    const { getByTestId } = render(
-      <SelectCityInput
-        value=""
-        onChange={() => undefined}
-        handleRemove={handleRemove}
-      />,
-    );
-
-    const button = getByTestId('select-city-input-remove-button');
-    userEvent.click(button);
-
-    expect(handleRemove).toHaveBeenCalled();
-  });
-
-  test('Hides remove button when not hovered', () => {
-    const { getByTestId } = render(
-      <SelectCityInput
-        value=""
-        onChange={() => undefined}
-        handleRemove={() => undefined}
-      />,
-    );
-
-    const button = getByTestId('select-city-input-remove-button');
-
-    expect(button).not.toBeVisible();
-  });
-
-  test('Shows is invalid alert when given', () => {
-    const { getByTestId } = render(
-      <SelectCityInput
-        value=""
-        onChange={() => undefined}
-        handleRemove={() => undefined}
-        isInvalid
-      />,
-    );
-
-    const alert = getByTestId('dropdown-input-alert');
-    expect(alert).toBeInTheDocument();
+      const alert = screen.getByTestId('dropdown-input-alert');
+      expect(alert).toBeInTheDocument();
+    });
   });
 });

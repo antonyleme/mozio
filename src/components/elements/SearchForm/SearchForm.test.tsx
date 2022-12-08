@@ -1,5 +1,5 @@
 import {
-  fireEvent, render, waitFor,
+  fireEvent, render, screen, waitFor,
 } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { getIfCityIsValid } from 'api';
@@ -9,251 +9,180 @@ import SearchForm from '.';
 jest.mock('api', () => ({ getIfCityIsValid: jest.fn() }));
 
 describe('<SearchForm/>', () => {
-  test('Renders without error', () => {
-    const { getByTestId } = render(
-      <MemoryRouter>
-        <SearchForm submit={() => undefined} />
-      </MemoryRouter>,
-    );
-
-    const form = getByTestId('search-form');
-    expect(form).toBeInTheDocument();
-  });
-
-  test('Renders 2 icons by default', () => {
-    const { getAllByTestId } = render(
-      <MemoryRouter>
-        <SearchForm submit={() => undefined} />
-      </MemoryRouter>,
-    );
-
-    const icons = getAllByTestId('input-icon');
-    expect(icons.length).toBe(2);
-  });
-
-  describe('Select city inputs', () => {
-    test('Starts with 2 inputs by default', () => {
-      const { getAllByTestId } = render(
+  describe('Renders without errors', () => {
+    beforeEach(() => {
+      render(
         <MemoryRouter>
           <SearchForm submit={() => undefined} />
         </MemoryRouter>,
       );
+    });
 
-      const inputs = getAllByTestId('select-city-input');
+    test('Renders without error', () => {
+      const form = screen.getByTestId('search-form');
+      expect(form).toBeInTheDocument();
+    });
+
+    test('Renders 2 icons by default', () => {
+      const icons = screen.getAllByTestId('input-icon');
+      expect(icons.length).toBe(2);
+    });
+  });
+
+  describe('Select city inputs', () => {
+    beforeEach(() => {
+      render(
+        <MemoryRouter>
+          <SearchForm submit={() => undefined} />
+        </MemoryRouter>,
+      );
+    });
+
+    test('Starts with 2 inputs by default', () => {
+      const inputs = screen.getAllByTestId('select-city-input');
       expect(inputs.length).toBe(2);
     });
 
     test('Doesn`t show remove button when there is less than 3 inputs', () => {
-      const { queryAllByTestId } = render(
-        <MemoryRouter>
-          <SearchForm submit={() => undefined} />
-        </MemoryRouter>,
-      );
-
-      const removeButtons = queryAllByTestId('select-city-input-remove-button');
+      const removeButtons = screen.queryAllByTestId('select-city-input-remove-button');
       expect(removeButtons.length).toBe(0);
     });
 
     test('Shows remove button when there is more than 2 inputs', () => {
-      const { getByTestId, getAllByTestId } = render(
-        <MemoryRouter>
-          <SearchForm submit={() => undefined} />
-        </MemoryRouter>,
-      );
-
-      const button = getByTestId('add-localization-button');
+      const button = screen.getByTestId('add-localization-button');
       userEvent.click(button);
 
-      const removeButtons = getAllByTestId('select-city-input-remove-button');
+      const removeButtons = screen.getAllByTestId('select-city-input-remove-button');
       expect(removeButtons.length).toBe(3);
     });
 
     test('Removes one input when click on remove', async () => {
-      const { getByTestId, getAllByTestId } = render(
-        <MemoryRouter>
-          <SearchForm submit={() => undefined} />
-        </MemoryRouter>,
-      );
-
-      const button = getByTestId('add-localization-button');
+      const button = screen.getByTestId('add-localization-button');
       userEvent.click(button);
       userEvent.click(button);
 
-      const removeButtons = getAllByTestId('select-city-input-remove-button');
+      const removeButtons = screen.getAllByTestId('select-city-input-remove-button');
       userEvent.click(removeButtons[0]);
 
       await waitFor(() => {
-        const inputs = getAllByTestId('select-city-input');
+        const inputs = screen.getAllByTestId('select-city-input');
         expect(inputs.length).toBe(3);
       });
     });
   });
 
   describe('Add Localization Button', () => {
-    test('Renders add localization button', () => {
-      const { getByTestId } = render(
+    beforeEach(() => {
+      render(
         <MemoryRouter>
           <SearchForm submit={() => undefined} />
         </MemoryRouter>,
       );
+    });
 
-      const button = getByTestId('add-localization-button');
+    test('Renders add localization button', () => {
+      const button = screen.getByTestId('add-localization-button');
       expect(button).toBeInTheDocument();
     });
 
     test('Adds one more input when click on button', () => {
-      const { getByTestId, getAllByTestId } = render(
-        <MemoryRouter>
-          <SearchForm submit={() => undefined} />
-        </MemoryRouter>,
-      );
-
-      const button = getByTestId('add-localization-button');
+      const button = screen.getByTestId('add-localization-button');
 
       userEvent.click(button);
 
-      const inputs = getAllByTestId('select-city-input');
+      const inputs = screen.getAllByTestId('select-city-input');
       expect(inputs.length).toBe(3);
     });
   });
 
   describe('Search Button', () => {
-    test('Renders search button', () => {
-      const { getByTestId } = render(
+    beforeEach(() => {
+      render(
         <MemoryRouter>
           <SearchForm submit={() => undefined} />
         </MemoryRouter>,
       );
+    });
 
-      const button = getByTestId('search-button');
+    test('Renders search button', () => {
+      const button = screen.getByTestId('search-button');
       expect(button).toBeInTheDocument();
     });
 
     test('Is disabled when doesnt have cities', () => {
-      const { getByTestId } = render(
-        <MemoryRouter>
-          <SearchForm submit={() => undefined} />
-        </MemoryRouter>,
-      );
-
-      const button = getByTestId('search-button');
+      const button = screen.getByTestId('search-button');
       expect(button).toHaveAttribute('disabled');
     });
 
-    test('Is not disabled when have cities filled', () => {
-      const { getAllByTestId, getByTestId } = render(
-        <MemoryRouter>
-          <SearchForm submit={() => undefined} />
-        </MemoryRouter>,
-      );
+    describe('Cities is filled', () => {
+      beforeEach(() => {
+        const inputs = screen.getAllByTestId('dropdown-input');
 
-      const inputs = getAllByTestId('dropdown-input');
+        fireEvent.change(inputs[0], { target: { value: 'Paris' } });
+        fireEvent.change(inputs[1], { target: { value: 'Reims' } });
+      });
 
-      fireEvent.change(inputs[0], { target: { value: 'Paris' } });
-      fireEvent.change(inputs[1], { target: { value: 'Reims' } });
+      test('Is not disabled when have cities filled', () => {
+        const button = screen.getByTestId('search-button');
+        expect(button).not.toHaveAttribute('disabled');
+      });
 
-      const button = getByTestId('search-button');
-      expect(button).not.toHaveAttribute('disabled');
-    });
+      test('Search button gets disabled when submit without date', () => {
+        const passengersInput = screen.getByTestId('passengers-input');
+        fireEvent.change(passengersInput, { target: { value: 1 } });
 
-    test('Search button gets disabled when submit without date', () => {
-      const { getAllByTestId, getByTestId } = render(
-        <MemoryRouter>
-          <SearchForm submit={() => undefined} />
-        </MemoryRouter>,
-      );
+        const button = screen.getByTestId('search-button');
+        userEvent.click(button);
 
-      const passengersInput = getByTestId('passengers-input');
+        expect(button).toHaveAttribute('disabled');
+      });
 
-      fireEvent.change(passengersInput, { target: { value: 1 } });
+      test('Enables search button after type a date', () => {
+        const dateInput = screen.getByTestId('date-input');
+        fireEvent.change(dateInput, { target: { value: '2200-10-10' } });
 
-      const inputs = getAllByTestId('dropdown-input');
-      fireEvent.change(inputs[0], { target: { value: 'Paris' } });
-      fireEvent.change(inputs[1], { target: { value: 'Reims' } });
+        const passengersInput = screen.getByTestId('passengers-input');
+        fireEvent.change(passengersInput, { target: { value: 1 } });
 
-      const button = getByTestId('search-button');
-      userEvent.click(button);
+        const button = screen.getByTestId('search-button');
 
-      expect(button).toHaveAttribute('disabled');
-    });
+        expect(button).not.toHaveAttribute('disabled');
+      });
 
-    test('Enables search button after type a date', () => {
-      const { getAllByTestId, getByTestId } = render(
-        <MemoryRouter>
-          <SearchForm submit={() => undefined} />
-        </MemoryRouter>,
-      );
+      describe('Passenger input tests', () => {
+        beforeEach(() => {
+          const dateInput = screen.getByTestId('date-input');
+          fireEvent.change(dateInput, { target: { value: '2200-10-10' } });
+        });
 
-      const dateInput = getByTestId('date-input');
-      const passengersInput = getByTestId('passengers-input');
+        test('Search button gets disabled when submit without passenger', () => {
+          const passengersInput = screen.getByTestId('passengers-input');
+          fireEvent.change(passengersInput, { target: { value: '' } });
 
-      fireEvent.change(passengersInput, { target: { value: 1 } });
+          const button = screen.getByTestId('search-button');
+          userEvent.click(button);
 
-      const inputs = getAllByTestId('dropdown-input');
-      fireEvent.change(inputs[0], { target: { value: 'Paris' } });
-      fireEvent.change(inputs[1], { target: { value: 'Reims' } });
+          expect(button).toHaveAttribute('disabled');
+        });
 
-      const button = getByTestId('search-button');
-      userEvent.click(button);
+        test('Enables search button after type a passenger', () => {
+          const passengersInput = screen.getByTestId('passengers-input');
+          fireEvent.change(passengersInput, { target: { value: '2' } });
 
-      fireEvent.change(dateInput, { target: { value: '2200-10-10' } });
-      expect(button).not.toHaveAttribute('disabled');
-    });
-
-    test('Search button gets disabled when submit without passenger', () => {
-      const { getAllByTestId, getByTestId } = render(
-        <MemoryRouter>
-          <SearchForm submit={() => undefined} />
-        </MemoryRouter>,
-      );
-
-      const dateInput = getByTestId('date-input');
-      const passengersInput = getByTestId('passengers-input');
-
-      fireEvent.change(dateInput, { target: { value: '2200-10-10' } });
-      fireEvent.change(passengersInput, { target: { value: '' } });
-
-      const inputs = getAllByTestId('dropdown-input');
-      fireEvent.change(inputs[0], { target: { value: 'Paris' } });
-      fireEvent.change(inputs[1], { target: { value: 'Reims' } });
-
-      const button = getByTestId('search-button');
-      userEvent.click(button);
-
-      expect(button).toHaveAttribute('disabled');
-    });
-
-    test('Enables search button after type a passenger', () => {
-      const { getAllByTestId, getByTestId } = render(
-        <MemoryRouter>
-          <SearchForm submit={() => undefined} />
-        </MemoryRouter>,
-      );
-
-      const dateInput = getByTestId('date-input');
-      const passengersInput = getByTestId('passengers-input');
-
-      fireEvent.change(dateInput, { target: { value: '2200-10-10' } });
-      fireEvent.change(passengersInput, { target: { value: '' } });
-
-      const inputs = getAllByTestId('dropdown-input');
-      fireEvent.change(inputs[0], { target: { value: 'Paris' } });
-      fireEvent.change(inputs[1], { target: { value: 'Reims' } });
-
-      const button = getByTestId('search-button');
-      userEvent.click(button);
-
-      fireEvent.change(passengersInput, { target: { value: '1' } });
-      expect(button).not.toHaveAttribute('disabled');
+          const button = screen.getByTestId('search-button');
+          expect(button).not.toHaveAttribute('disabled');
+        });
+      });
     });
   });
 
   describe('Valid form submit', () => {
-    test('Submits when city is valid', async () => {
-      (getIfCityIsValid as jest.Mock).mockImplementation(() => true);
-      const handleSubmit = jest.fn();
+    const handleSubmit = jest.fn();
 
-      const { getByTestId, getAllByTestId, findByTestId } = render(
+    beforeEach(() => {
+      (getIfCityIsValid as jest.Mock).mockImplementation(() => true);
+
+      render(
         <MemoryRouter>
           <SearchForm
             submit={handleSubmit}
@@ -261,16 +190,18 @@ describe('<SearchForm/>', () => {
         </MemoryRouter>,
       );
 
-      const dateInput = getByTestId('date-input');
-      const passengersInput = getByTestId('passengers-input');
+      const dateInput = screen.getByTestId('date-input');
+      const passengersInput = screen.getByTestId('passengers-input');
       fireEvent.change(dateInput, { target: { value: '2200-10-10' } });
       fireEvent.change(passengersInput, { target: { value: '1' } });
 
-      const inputs = getAllByTestId('dropdown-input');
+      const inputs = screen.getAllByTestId('dropdown-input');
       fireEvent.change(inputs[0], { target: { value: 'Valid city 1' } });
       fireEvent.change(inputs[1], { target: { value: 'Valid city 2' } });
+    });
 
-      const button = await findByTestId('search-button');
+    test('Submits when city is valid', async () => {
+      const button = await screen.findByTestId('search-button');
 
       await waitFor(async () => {
         userEvent.click(button);
@@ -282,42 +213,24 @@ describe('<SearchForm/>', () => {
     });
 
     test('Doesn`t shows invalid when try to submit valid city', async () => {
-      (getIfCityIsValid as jest.Mock).mockImplementation(() => true);
-
-      const {
-        getByTestId, getAllByTestId, findByTestId, queryAllByTestId,
-      } = render(
-        <MemoryRouter>
-          <SearchForm submit={() => undefined} />
-        </MemoryRouter>,
-      );
-
-      const dateInput = getByTestId('date-input');
-      const passengersInput = getByTestId('passengers-input');
-      fireEvent.change(dateInput, { target: { value: '2200-10-10' } });
-      fireEvent.change(passengersInput, { target: { value: '1' } });
-
-      const inputs = getAllByTestId('dropdown-input');
-      fireEvent.change(inputs[0], { target: { value: 'Valid city 1' } });
-      fireEvent.change(inputs[1], { target: { value: 'Valid city 2' } });
-
-      const button = await findByTestId('search-button');
+      const button = await screen.findByTestId('search-button');
 
       await waitFor(async () => {
         userEvent.click(button);
       });
 
-      const alerts = queryAllByTestId('dropdown-input-alert');
+      const alerts = screen.queryAllByTestId('dropdown-input-alert');
       expect(alerts.length).toBe(0);
     });
   });
 
   describe('Invalid form submit', () => {
-    test('Doesn`t submit when city is invalid', async () => {
-      (getIfCityIsValid as jest.Mock).mockImplementation(() => false);
-      const handleSubmit = jest.fn();
+    const handleSubmit = jest.fn();
 
-      const { getByTestId, getAllByTestId, findByTestId } = render(
+    beforeEach(() => {
+      (getIfCityIsValid as jest.Mock).mockImplementation(() => false);
+
+      render(
         <MemoryRouter>
           <SearchForm
             submit={handleSubmit}
@@ -325,16 +238,18 @@ describe('<SearchForm/>', () => {
         </MemoryRouter>,
       );
 
-      const dateInput = getByTestId('date-input');
-      const passengersInput = getByTestId('passengers-input');
+      const dateInput = screen.getByTestId('date-input');
+      const passengersInput = screen.getByTestId('passengers-input');
       fireEvent.change(dateInput, { target: { value: '2200-10-10' } });
       fireEvent.change(passengersInput, { target: { value: '1' } });
 
-      const inputs = getAllByTestId('dropdown-input');
+      const inputs = screen.getAllByTestId('dropdown-input');
       fireEvent.change(inputs[0], { target: { value: 'Invalid city 1' } });
       fireEvent.change(inputs[1], { target: { value: 'Invalid city 2' } });
+    });
 
-      const button = await findByTestId('search-button');
+    test('Doesn`t submit when city is invalid', async () => {
+      const button = await screen.findByTestId('search-button');
 
       await waitFor(async () => {
         userEvent.click(button);
@@ -346,32 +261,13 @@ describe('<SearchForm/>', () => {
     });
 
     test('Shows invalid when try to submit invalid city', async () => {
-      (getIfCityIsValid as jest.Mock).mockImplementation(() => false);
-
-      const {
-        getByTestId, getAllByTestId, findByTestId, findAllByTestId,
-      } = render(
-        <MemoryRouter>
-          <SearchForm submit={() => undefined} />
-        </MemoryRouter>,
-      );
-
-      const dateInput = getByTestId('date-input');
-      const passengersInput = getByTestId('passengers-input');
-      fireEvent.change(dateInput, { target: { value: '2200-10-10' } });
-      fireEvent.change(passengersInput, { target: { value: '1' } });
-
-      const inputs = getAllByTestId('dropdown-input');
-      fireEvent.change(inputs[0], { target: { value: 'Invalid city 1' } });
-      fireEvent.change(inputs[1], { target: { value: 'Invalid city 2' } });
-
-      const button = await findByTestId('search-button');
+      const button = await screen.findByTestId('search-button');
 
       await waitFor(async () => {
         userEvent.click(button);
       });
 
-      const alerts = await findAllByTestId('dropdown-input-alert');
+      const alerts = await screen.findAllByTestId('dropdown-input-alert');
       expect(alerts.length).toBe(2);
     });
   });

@@ -1,29 +1,24 @@
 import { render, screen } from '@testing-library/react';
-import Header from '.';
+import ErrorBox from '.';
 
 describe('<HomePage/>', () => {
   describe('Children is string', () => {
     beforeEach(() => {
       render(
-        <Header>Children</Header>,
+        <ErrorBox>Children</ErrorBox>,
       );
     });
 
-    test('Has logo', () => {
-      const logo = screen.getByTestId('logo-image');
-      expect(logo).toBeInTheDocument();
-    });
-
-    test('Renders description', () => {
+    test('Renders children when is string', () => {
       const message = screen.getByText('Children');
       expect(message).toBeInTheDocument();
     });
   });
 
   describe('Children is react element', () => {
-    test('Renders description without error when is react element', () => {
+    test('Renders children without error when is react element', () => {
       render(
-        <Header><strong>React element children</strong></Header>,
+        <ErrorBox><strong>React element children</strong></ErrorBox>,
       );
 
       const message = screen.getByText('React element children');

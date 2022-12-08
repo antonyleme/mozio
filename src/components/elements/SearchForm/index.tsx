@@ -33,18 +33,35 @@ const SearchForm: React.FC<Props> = function ({ submit }) {
     const defaultDate = searchParams.get('date');
     const defaultPassengers = searchParams.get('passengers');
 
-    updateDestinies(() => (defaultCities || [
-      {
+    if (defaultCities) {
+      const citiesFromUrl = defaultCities.map((city) => ({
         id: uuid(),
-        value: '',
+        value: city,
         isInvalid: false,
-      },
-      {
-        id: uuid(),
-        value: '',
-        isInvalid: false,
-      },
-    ]));
+      }));
+
+      if (citiesFromUrl.length < 2) {
+        citiesFromUrl.push({
+          id: uuid(),
+          value: '',
+          isInvalid: false,
+        });
+      }
+      updateDestinies(() => citiesFromUrl);
+    } else {
+      updateDestinies(() => [
+        {
+          id: uuid(),
+          value: '',
+          isInvalid: false,
+        },
+        {
+          id: uuid(),
+          value: '',
+          isInvalid: false,
+        },
+      ]);
+    }
     if (defaultDate) setDate(defaultDate);
     if (defaultPassengers) setPassengers(defaultPassengers);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -53,7 +70,8 @@ const SearchForm: React.FC<Props> = function ({ submit }) {
   useEffect(() => {
     const finalObject: {
       date?: string,
-      passengers?: string
+      passengers?: string,
+      cities?: string
     } = {};
 
     if (date) {
@@ -64,10 +82,14 @@ const SearchForm: React.FC<Props> = function ({ submit }) {
       finalObject.passengers = passengers;
     }
 
-    if (date || passengers) {
+    if (destinies.length) {
+      finalObject.cities = destinies.map((d) => d.value).join(',');
+    }
+
+    if (date || passengers || destinies) {
       setSearchParams(finalObject);
     }
-  }, [date, passengers, setSearchParams]);
+  }, [date, passengers, destinies, setSearchParams]);
 
   useEffect(() => {
     if (date && isDateInvalid) {
@@ -92,41 +114,6 @@ const SearchForm: React.FC<Props> = function ({ submit }) {
 
     return d.toISOString().substring(0, 10);
   };
-
-  // useEffect(() => {
-  //   let newDestinies: ISelectCityOption[] = [
-  //     {
-  //       id: uuid(),
-  //       value: '',
-  //       isInvalid: false,
-  //     },
-  //     {
-  //       id: uuid(),
-  //       value: '',
-  //       isInvalid: false,
-  //     },
-  //   ];
-
-  //   if (defaultValues?.destinies?.length) {
-  //     newDestinies = defaultValues?.destinies.map((val) => (
-  //       {
-  //         id: uuid(),
-  //         value: val,
-  //         isInvalid: false,
-  //       }
-  //     ));
-  //   }
-
-  //   updateDestinies(() => newDestinies);
-
-  //   if (defaultValues?.date) {
-  //     setDate(defaultValues?.date);
-  //   }
-
-  //   if (defaultValues?.passengers) {
-  //     setPassengers(defaultValues?.passengers);
-  //   }
-  // }, [defaultValues, updateDestinies]);
 
   const onChange = (value: string, index: number): void => {
     if (destinies[index].value === value) return;
@@ -245,7 +232,7 @@ const SearchForm: React.FC<Props> = function ({ submit }) {
                 {...commonInputProps}
                 data-testid="date-input"
               />
-              <FormErrorMessage>
+              <FormErrorMessage data-testid="date-input-error">
                 Please fill the date
               </FormErrorMessage>
             </FormControl>
@@ -260,7 +247,7 @@ const SearchForm: React.FC<Props> = function ({ submit }) {
                 {...commonInputProps}
                 data-testid="passengers-input"
               />
-              <FormErrorMessage>
+              <FormErrorMessage data-testid="passengers-input-error">
                 Please fill the passengers number
               </FormErrorMessage>
             </FormControl>

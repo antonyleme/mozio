@@ -27,7 +27,7 @@ const FormResult: React.FC<Props> = function ({
   const totalDistance = distances?.reduce((total, el) => total + el.distance, 0) || 0;
 
   return (
-    <Box>
+    <Box data-testid="form-result">
       <Box w="100%">
         <HStack spacing="14px" alignItems="flex-start">
           <Flex
@@ -123,7 +123,9 @@ const FormResult: React.FC<Props> = function ({
                         <Text fontSize="14px">
                           Relative distance:
                           {' '}
-                          <strong>
+                          <strong
+                            data-testid="distance-value"
+                          >
                             {`${(item.distance / 1000).toFixed(0)}km`}
                           </strong>
                         </Text>
@@ -148,7 +150,11 @@ const FormResult: React.FC<Props> = function ({
                     <Text>
                       Total distance:
                       {' '}
-                      <strong>{`${((totalDistance) / 1000).toFixed(0)}km`}</strong>
+                      <strong
+                        data-testid="total-distance-value"
+                      >
+                        {`${((totalDistance) / 1000).toFixed(0)}km`}
+                      </strong>
                     </Text>
                   </HStack>
                 </Box>

@@ -7,6 +7,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import Header from 'components/elements/Header';
 import { getDistanceBetweenCities } from 'api';
 import { ICityDistance } from 'common/types';
+import ErrorBox from 'components/elements/ErrorBox';
 
 const ResultPage: React.FC = function () {
   const [searchParams] = useSearchParams();
@@ -18,6 +19,7 @@ const ResultPage: React.FC = function () {
   const toast = useToast();
 
   const [distancesData, setDistancesData] = useState<ICityDistance[]>();
+  const [loading, setLoading] = useState(true);
 
   React.useEffect(() => {
     if (!date || !passengers || !cities) {
@@ -33,12 +35,21 @@ const ResultPage: React.FC = function () {
   React.useEffect(() => {
     const getData = async (): Promise<void> => {
       if (cities) {
-        const response = await getDistanceBetweenCities(cities);
-        setDistancesData(response);
+        try {
+          const response = await getDistanceBetweenCities(cities);
+          setDistancesData(response);
+        } catch (error: unknown) {
+          toast({
+            status: 'error',
+            title: 'Ops',
+            description: 'Invalid data was provided',
+          });
+        }
+        setLoading(false);
       }
     };
     getData();
-  }, [cities]);
+  }, [cities, toast]);
 
   return (
     <Flex h="100vh" justifyContent="center" py="128px">
@@ -54,11 +65,21 @@ const ResultPage: React.FC = function () {
         {
           (date && passengers && cities)
           && (
-            <FormResult
-              date={date}
-              passengers={passengers}
-              distances={distancesData}
-            />
+            <Box>
+              {
+                (!distancesData && !loading)
+                  ? (
+                    <ErrorBox>Impossible to calculate</ErrorBox>
+                  )
+                  : (
+                    <FormResult
+                      date={date}
+                      passengers={passengers}
+                      distances={distancesData}
+                    />
+                  )
+              }
+            </Box>
           )
         }
       </Box>

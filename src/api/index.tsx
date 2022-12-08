@@ -49,6 +49,8 @@ export const getIfCityIsValid = async (city: string): Promise<boolean> => {
 };
 
 export const getDistanceBetweenCities = async (cities: string[]): Promise<ICityDistance[]> => {
+  if (cities.includes('Dijon')) throw new Error();
+
   const citiesData: CityDataType[] = [];
 
   cities.forEach((city) => {

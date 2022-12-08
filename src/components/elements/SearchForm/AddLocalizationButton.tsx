@@ -21,6 +21,7 @@ const AddLocalizationButton: React.FC<Props> = function ({ onClick }) {
       mb="25px"
       onClick={onClick}
       data-testid="add-localization-button"
+      id="add-localization-button"
     >
       <Box color="yellow.brand" fontSize="20px" lineHeight="20px">
         <AddIcon />
