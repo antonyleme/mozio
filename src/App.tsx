@@ -17,6 +17,8 @@ const App: React.FC = function () {
           bgImage: Bg,
           bgSize: 'cover',
           bgPosition: 'center',
+          maxW: '100vw',
+          overflowX: 'hidden',
         },
       },
     },
