@@ -15,7 +15,7 @@ const HomePage: React.FC = function () {
   };
 
   return (
-    <Flex h="100vh" justifyContent="center" py="128px">
+    <Flex h="100vh" justifyContent="center" py={{ base: 0, lg: '128px' }}>
       <Box w={{ base: '100%', lg: '380px' }} p={{ base: '24px', lg: 0 }} maxW="100%">
         <Header>
           <>
