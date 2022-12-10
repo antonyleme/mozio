@@ -1,9 +1,8 @@
-import { Box, IconButton, useToast } from '@chakra-ui/react';
-import { getCitiesByKeyword } from 'api';
-import { CityDataType } from 'common/types';
+import { Box, IconButton } from '@chakra-ui/react';
 import { CloseIcon } from 'components/icons';
 import React, { useEffect } from 'react';
 import DropdownInput, { IDropdownInput } from '../DropdownInput';
+import useCitiesFilter from './hooks/use-cities-filter';
 
 interface Props {
   value: string,
@@ -20,31 +19,9 @@ const SelectCityInput: React.FC<Props> = function ({
   placeholder,
   isInvalid,
 }) {
-  const [filtering, setFiltering] = React.useState(false);
-  const [filteredItems, setFilteredItems] = React.useState<string[]>([]);
+  const { filtering, filteredItems, filterValues } = useCitiesFilter();
 
   const dropdownInputRef = React.useRef<IDropdownInput>(null);
-
-  const toast = useToast();
-
-  const filterValues = async (newValue: string): Promise<void> => {
-    setFiltering(true);
-
-    let newItems: CityDataType[] = [];
-
-    try {
-      newItems = await getCitiesByKeyword(newValue);
-      setFilteredItems(newItems.map((i) => i[0] as string));
-    } catch (error: unknown) {
-      toast({
-        status: 'error',
-        title: 'Ops',
-        description: 'Something went wrong',
-      });
-    }
-
-    setFiltering(false);
-  };
 
   useEffect(() => {
     if (filteredItems.length) {

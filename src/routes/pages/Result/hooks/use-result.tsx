@@ -1,6 +1,6 @@
 import { useToast } from '@chakra-ui/react';
 import { getDistanceBetweenCities } from 'api';
-import { ICityDistance, ISelectCityOption } from 'common/types';
+import { ICityDistance } from 'common/types';
 import React from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
@@ -10,10 +10,6 @@ interface IUseResult {
   cities: string[] | undefined,
   distancesData: ICityDistance[] | undefined,
   loading: boolean,
-}
-
-export interface IUseSearchFormProps {
-  submit: (values: ISelectCityOption[], date: string, passengers: string) => void,
 }
 
 const useResult = (): IUseResult => {
