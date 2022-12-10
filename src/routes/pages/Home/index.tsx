@@ -5,7 +5,7 @@ import React from 'react';
 import SearchForm from 'components/elements/SearchForm';
 import { useNavigate } from 'react-router-dom';
 import { ISelectCityOption } from 'common/types';
-import Header from 'components/elements/Header';
+import Header from 'components/shared/Header';
 
 const HomePage: React.FC = function () {
   const navigate = useNavigate();
