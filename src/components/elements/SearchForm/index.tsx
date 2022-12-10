@@ -1,204 +1,36 @@
 import {
   Box, Button, Flex, FormControl, FormErrorMessage, FormLabel, Grid, HStack, Input, Stack,
 } from '@chakra-ui/react';
-import { getIfCityIsValid } from 'api';
-import { ISelectCityOption } from 'common/types';
 import { FormsIcon } from 'components/icons';
 import SelectCityInput from 'components/shared/SelectCityInput';
 import { AnimatePresence, motion } from 'framer-motion';
-import React, { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { useImmer } from 'use-immer';
-import { v4 as uuid } from 'uuid';
+import React from 'react';
 import AddLocalizationButton from './AddLocalizationButton';
+import useSearchForm, { IUseSearchFormProps } from './hooks/use-search-form';
 import InputsIcons from './InputsIcons';
 
 interface Props {
-  submit: (values: ISelectCityOption[], date: string, passengers: string) => void,
+  submit: IUseSearchFormProps['submit'],
 }
 
 const SearchForm: React.FC<Props> = function ({ submit }) {
-  const [destinies, updateDestinies] = useImmer<ISelectCityOption[]>([]);
-
-  const [searchParams, setSearchParams] = useSearchParams();
-
-  const [date, setDate] = useState('');
-  const [isDateInvalid, setIsDateInvalid] = useState(false);
-
-  const [passengers, setPassengers] = useState('1');
-  const [isPassengersInvalid, setIsPassengersInvalid] = useState(false);
-
-  React.useEffect(() => {
-    const defaultCities = searchParams.get('cities')?.split(',');
-    const defaultDate = searchParams.get('date');
-    const defaultPassengers = searchParams.get('passengers');
-
-    if (defaultCities) {
-      const citiesFromUrl = defaultCities.map((city) => ({
-        id: uuid(),
-        value: city,
-        isInvalid: false,
-      }));
-
-      if (citiesFromUrl.length < 2) {
-        citiesFromUrl.push({
-          id: uuid(),
-          value: '',
-          isInvalid: false,
-        });
-      }
-      updateDestinies(() => citiesFromUrl);
-    } else {
-      updateDestinies(() => [
-        {
-          id: uuid(),
-          value: '',
-          isInvalid: false,
-        },
-        {
-          id: uuid(),
-          value: '',
-          isInvalid: false,
-        },
-      ]);
-    }
-    if (defaultDate) setDate(defaultDate);
-    if (defaultPassengers) setPassengers(defaultPassengers);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useEffect(() => {
-    const finalObject: {
-      date?: string,
-      passengers?: string,
-      cities?: string
-    } = {};
-
-    if (date) {
-      finalObject.date = date;
-    }
-
-    if (passengers) {
-      finalObject.passengers = passengers;
-    }
-
-    if (destinies.length) {
-      finalObject.cities = destinies.map((d) => d.value).join(',');
-    }
-
-    if (date || passengers || destinies) {
-      setSearchParams(finalObject);
-    }
-  }, [date, passengers, destinies, setSearchParams]);
-
-  useEffect(() => {
-    if (date && new Date(date) > new Date() && isDateInvalid) {
-      setIsDateInvalid(false);
-    }
-
-    if (passengers && isPassengersInvalid) {
-      setIsPassengersInvalid(false);
-    }
-  }, [
-    date,
-    passengers,
+  const {
     isDateInvalid,
+    date,
+    setDate,
+    minDate,
     isPassengersInvalid,
-    setIsDateInvalid,
-    setIsPassengersInvalid,
-  ]);
-
-  const minDate = (): string => {
-    const d = new Date();
-    d.setDate(d.getDate() + 1);
-
-    return d.toISOString().substring(0, 10);
-  };
-
-  const onChange = (value: string, index: number): void => {
-    if (destinies[index].value === value) return;
-
-    updateDestinies((draft) => {
-      draft[index].value = value;
-    });
-  };
-
-  const add = (): void => {
-    updateDestinies((draft) => {
-      draft.push({
-        id: uuid(),
-        value: '',
-        isInvalid: false,
-      });
-    });
-  };
-
-  const remove = (id: string): void => {
-    updateDestinies((draft) => draft.filter((d) => d.id !== id));
-  };
-
-  const getPlaceholder = (index: number): string => {
-    if (index === 0) {
-      return 'Select your origin city';
-    }
-
-    if (index === destinies.length - 1) {
-      return 'Select your destiny city';
-    }
-
-    return 'Select your stopping city';
-  };
-
-  const getEmptyValuesLength = (): number => {
-    const emptyValues = destinies.filter((d) => !d.value);
-
-    return emptyValues.length;
-  };
-
-  const [submiting, setSubmiting] = useState(false);
-
-  const handleSubmit = async (): Promise<void> => {
-    if (getEmptyValuesLength() > 0) {
-      return;
-    }
-
-    let hasInvalid = false;
-
-    const today = new Date();
-
-    if (!date || new Date(date) <= today) {
-      setIsDateInvalid(true);
-      hasInvalid = true;
-    }
-
-    if (!passengers) {
-      setIsPassengersInvalid(true);
-      hasInvalid = true;
-    }
-
-    if (hasInvalid) return;
-
-    setSubmiting(true);
-
-    const promises = destinies.map((destiny) => getIfCityIsValid(destiny.value));
-    const isValidResults = await Promise.all(promises);
-
-    hasInvalid = isValidResults.includes(false);
-
-    updateDestinies((draft) => {
-      for (let i = 0; i < draft.length; i += 1) {
-        draft[i].isInvalid = !isValidResults[i];
-      }
-    });
-
-    if (!hasInvalid) submit(destinies, date, passengers);
-
-    setSubmiting(false);
-  };
-
-  const isFormInvalid = (): boolean => isDateInvalid
-    || isPassengersInvalid
-    || getEmptyValuesLength() > 0;
+    passengers,
+    setPassengers,
+    destinies,
+    getPlaceholder,
+    onChange,
+    remove,
+    add,
+    handleSubmit,
+    isFormInvalid,
+    submiting,
+  } = useSearchForm({ submit });
 
   const commonInputProps = {
     variant: 'custom',
@@ -319,7 +151,7 @@ const SearchForm: React.FC<Props> = function ({ submit }) {
         w="100%"
         data-testid="search-button"
         onClick={handleSubmit}
-        isDisabled={isFormInvalid()}
+        isDisabled={isFormInvalid}
         mb="80px"
         isLoading={submiting}
       >
