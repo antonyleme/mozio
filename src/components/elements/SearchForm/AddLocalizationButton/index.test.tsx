@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import AddLocalizationButton from './AddLocalizationButton';
+import AddLocalizationButton from './index';
 
 describe('<AddLocalizationButton/>', () => {
   const handeClick = jest.fn();

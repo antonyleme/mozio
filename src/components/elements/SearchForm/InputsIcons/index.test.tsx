@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import InputsIcons from './InputsIcons';
+import InputsIcons from './index';
 
 describe('<InputsIcons/>', () => {
   describe('Index 0', () => {
