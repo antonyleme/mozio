@@ -2,7 +2,7 @@ import {
   Box, Collapse, useDisclosure, useOutsideClick,
 } from '@chakra-ui/react';
 import React from 'react';
-import ListItem from './ListItem';
+import ListItem from '../ListItem';
 
 export interface ICollapsableList {
   onOpen: () => void,

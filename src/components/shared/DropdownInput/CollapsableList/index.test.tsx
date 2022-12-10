@@ -1,7 +1,7 @@
 import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { createRef } from 'react';
-import CollapsableList, { ICollapsableList } from './CollapsableList';
+import CollapsableList, { ICollapsableList } from './index';
 
 window.scrollTo = jest.fn();
 
