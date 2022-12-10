@@ -1,55 +1,20 @@
 import {
-  Box, Flex, useToast,
+  Box, Flex,
 } from '@chakra-ui/react';
-import React, { useState } from 'react';
+import React from 'react';
 import FormResult from 'components/elements/FormResult';
-import { useNavigate, useSearchParams } from 'react-router-dom';
 import Header from 'components/shared/Header';
-import { getDistanceBetweenCities } from 'api';
-import { ICityDistance } from 'common/types';
-import ErrorBox from 'components/elements/ErrorBox';
+import ErrorBox from 'components/shared/ErrorBox';
+import useResult from './hooks/use-result';
 
 const ResultPage: React.FC = function () {
-  const [searchParams] = useSearchParams();
-  const [date] = React.useState(searchParams.get('date'));
-  const [passengers] = React.useState(searchParams.get('passengers'));
-  const [cities] = React.useState(searchParams.get('cities')?.split(','));
-
-  const navigate = useNavigate();
-  const toast = useToast();
-
-  const [distancesData, setDistancesData] = useState<ICityDistance[]>();
-  const [loading, setLoading] = useState(true);
-
-  React.useEffect(() => {
-    if (!date || !passengers || !cities) {
-      navigate('/');
-      toast({
-        status: 'error',
-        title: 'Ops',
-        description: 'Invalid data was provided',
-      });
-    }
-  }, [date, cities, passengers, navigate, toast]);
-
-  React.useEffect(() => {
-    const getData = async (): Promise<void> => {
-      if (cities) {
-        try {
-          const response = await getDistanceBetweenCities(cities);
-          setDistancesData(response);
-        } catch (error: unknown) {
-          toast({
-            status: 'error',
-            title: 'Ops',
-            description: 'Invalid data was provided',
-          });
-        }
-        setLoading(false);
-      }
-    };
-    getData();
-  }, [cities, toast]);
+  const {
+    date,
+    passengers,
+    cities,
+    distancesData,
+    loading,
+  } = useResult();
 
   return (
     <Flex h="100vh" justifyContent="center" py={{ base: 0, lg: '128px' }}>
