@@ -4,7 +4,7 @@ import {
 import React, { useState } from 'react';
 import FormResult from 'components/elements/FormResult';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import Header from 'components/elements/Header';
+import Header from 'components/shared/Header';
 import { getDistanceBetweenCities } from 'api';
 import { ICityDistance } from 'common/types';
 import ErrorBox from 'components/elements/ErrorBox';
